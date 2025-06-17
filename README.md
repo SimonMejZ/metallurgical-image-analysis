@@ -20,17 +20,35 @@ For each detected grain, the script calculates and saves the following propertie
 
 ## Methodology
 
-The image processing pipeline follows these key steps:
+The project is structured into a modular and interactive workflow:
 
-1.  **Image Loading:** The script automatically finds and processes all images within the sample subdirectories (e.g., `images/raw/X-6/`).
-2.  **Preprocessing:** A **Gaussian blur** is applied to reduce image noise.
-3.  **Segmentation:** An **adaptive local threshold** is used to create a binary mask, separating the grains from their boundaries. This method is robust against non-uniform illumination.
-4.  **Mask Cleaning:** A series of **morphological operations** (opening, removing small objects, filling holes) are performed to clean the binary mask.
-5.  **Property Extraction:** Each distinct region (grain) is labeled, and `skimage.measure.regionprops_table` is used to calculate the full list of geometric and intensity properties.
-6.  **Data & Visualization Export:**
-    * The final properties for every grain are saved to a `.csv` file.
-    * A side-by-side comparison image of the original vs. the segmented mask is generated.
-    * An interactive HTML plot with grain overlays is created for detailed inspection.
+1.  **Utility Functions (`src/utils.py`):** Core image processing logic (segmentation, feature extraction, visualization) is separated into a "helper" file. This promotes code reusability and makes the main script easier to read.
+2.  **Interactive Processor (`interactive_processor.py`):** This is the main script. It iterates through each raw image and enters an interactive loop that:
+    * Prompts the user to input processing parameters (`sigma`, `block_size`, etc.).
+    * Provides immediate visual feedback by displaying the resulting mask and opening an interactive plot in the browser.
+    * Asks for user approval to ensure segmentation accuracy. If rejected, the user can re-enter new parameters for the same image.
+3.  **Data Analysis Notebook (`Analysis.ipynb`):** After processing is complete, this Jupyter Notebook is used to load the generated data, perform comparative statistical analysis, and create final summary visualizations.
+
+## How to Use
+1.  **Install dependencies:**
+    ```bash
+    pip install -r requirements.txt
+    ```
+2.  **Add images:** Place your sample images into the correct subdirectories (e.g., `images/raw/X-6/`) - Must be JPGs.
+3.  **Run the interactive processor:**
+    ```bash
+    python interactive_processor.py
+    ```
+4.  **Follow the prompts:**
+    * In your terminal, enter the desired processing parameters for each image. Pressing `Enter` will accept the default value.
+    * A window will pop up showing the generated mask. Review it and **press any key** to close it.
+    * A new tab will open in your web browser with an interactive plot.
+    * Return to your terminal and type `y` to approve and save the result, or `n` to reject and try again.
+5.  **Find your results:**
+    * **Data:** `.csv` files will be in `/data/<sample_type>/`.
+    * **Final Plots:** `.png` and `.html` files will be in `/output/`.
+6.  **Review the analysis:** Open and run the `Analysis.ipynb` Jupyter Notebook to see the detailed data analysis.
+
 
 ## Results
 
