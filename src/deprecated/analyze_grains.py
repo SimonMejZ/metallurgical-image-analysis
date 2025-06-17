@@ -1,3 +1,13 @@
+"""
+This file is no longer in use but rather kept as a record of the old workflow.
+
+This file has been separated into a utility file containing the helper functions, and a UI script used by the user.
+
+Refer to the README.md to see how the new workflow is used
+
+Moved on 17/06/2025
+"""
+
 import cv2
 import pandas as pd
 import numpy as np
