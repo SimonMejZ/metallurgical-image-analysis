@@ -1,0 +1,7 @@
+opencv-python
+scikit-image
+scikit-posthocs
+plotly
+matplotlib
+pandas
+numpy
