@@ -6,7 +6,7 @@ COLOR_ACTIVE = pg.Color('dodgerblue2')
 FONT = pg.font.Font(None, 32)
 
 class InputBox:
-    """A class to create a clickable, user-editable text input box."""
+    """Clickable, user-editable text input box."""
     def __init__(self, x, y, w, h, text=''):
         self.rect = pg.Rect(x, y, w, h)
         self.color = COLOR_INACTIVE
@@ -53,3 +53,34 @@ class InputBox:
         """Draw the input box and its text on the screen."""
         screen.blit(self.txt_surface, (self.rect.x+5, self.rect.y+5))
         pg.draw.rect(screen, self.color, self.rect, 2)
+
+class Button:
+    """A clickable button."""
+    def __init__(self, x, y, w, h, text='Click', callback=None):
+        self.rect = pg.Rect(x, y, w, h)
+        self.color = COLOR_INACTIVE
+        self.text = text
+        self.txt_surface = FONT.render(text, True, (255, 255, 255))
+        self.callback = callback # Function to call when clicked
+        self.clicked = False
+
+    def handle_event(self, event):
+        """Handles events for the button."""
+        if event.type == pg.MOUSEBUTTONDOWN:
+            if self.rect.collidepoint(event.pos):
+                self.clicked = True
+                self.color = COLOR_ACTIVE
+        if event.type == pg.MOUSEBUTTONUP:
+            if self.clicked and self.rect.collidepoint(event.pos):
+                if self.callback:
+                    self.callback() # Execute the callback function
+            self.clicked = False
+            self.color = COLOR_INACTIVE
+
+
+    def draw(self, screen):
+        """Draw the button on the screen."""
+        pg.draw.rect(screen, self.color, self.rect)
+        # Center the text on the button
+        text_rect = self.txt_surface.get_rect(center=self.rect.center)
+        screen.blit(self.txt_surface, text_rect)
