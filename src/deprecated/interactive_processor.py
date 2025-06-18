@@ -1,3 +1,12 @@
+"""
+This file was deprecated with version 1.1 and replaced with a new GUI script
+
+This file is safe to remove
+
+Refer to the README.md to see how the new app is used
+
+Moved on 19/06/25 - SMZ
+"""
 import os
 import cv2
 import webbrowser
