@@ -44,21 +44,33 @@ def load_and_scale_for_display(image_bgr, display_area_size):
     scaled_image = pg.transform.smoothscale(img_surface, new_size) # trying smoothscale func.
     return scaled_image
 
-# Convert np mask to pygame surface
-def convert_mask_to_surface(mask, size):
-    # Create a 3-channel RGBA surface where the mask is red
-    rgba_mask = np.zeros((mask.shape[0], mask.shape[1], 4), dtype=np.uint8)
-    rgba_mask[mask == 255] = [255, 0, 0, 128] # Red, with 50% transparency
+def convert_labels_to_viridis_surface(labels, size):
+    if labels.max() == 0: # Handle case with no labels found
+        return pg.Surface(size, pg.SRCALPHA) # Return a blank transparent surface
 
-    # Convert to a PyGame surface
-    mask_surface = pg.image.frombuffer(rgba_mask.flatten(), mask.shape[::-1], 'RGBA')
+    # Normalize the labels to the 0-255 range for colormapping
+    normalized_labels = (255 * labels / labels.max()).astype(np.uint8)
 
-    # Scale it to the display size
-    scaled_mask = pg.transform.smoothscale(mask_surface, size)
-    return scaled_mask
+    # Apply the Viridis colormap
+    viridis_bgr = cv2.applyColorMap(normalized_labels, cv2.COLORMAP_VIRIDIS)
+    
+    # Convert from BGR (OpenCV) to RGBA for PyGame transparency
+    viridis_rgba = cv2.cvtColor(viridis_bgr, cv2.COLOR_BGR2RGBA)
+
+    # Create a transparency mask: 0 for background (label 0), 180 for grains
+    alpha_channel = np.where(labels > 0, 180, 0).astype(np.uint8)
+    
+    # Apply the transparency to the RGBA image
+    viridis_rgba[:, :, 3] = alpha_channel
+
+    # Create the final PyGame surface
+    colored_surface = pg.image.frombuffer(viridis_rgba.tobytes(), viridis_rgba.shape[1::-1], 'RGBA')
+    
+    scaled_surface = pg.transform.smoothscale(colored_surface, size)
+    return scaled_surface
 
 
-# Main GUi function with updated logic
+# Main GUI function with updated logic
 def main():
     pg.init()
     screen = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -145,9 +157,8 @@ def main():
         print(f"Processing complete. Found {len(df)} grains.")
 
         # Convert the resulting numpy mask to a displayable PyGame surface
-        processed_mask_surface = convert_mask_to_surface(
-            cleaned_mask, current_display_surface.get_size()
-        )
+        processed_mask_surface = convert_labels_to_viridis_surface(
+    labels, current_display_surface.get_size())
 
     # Create process button
     process_button = Button(x=IMAGE_AREA_WIDTH + 50, y=y_offset, w=250, h=50, text='Process Image', callback=run_processing)
@@ -165,11 +176,11 @@ def main():
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_RIGHT:
                     current_image_index = (current_image_index + 1) % len(image_files) # Ensure smooth
-                    current_image_surface, current_info_surface = update_image_display(current_image_index)
+                    current_image_bgr, current_display_surface, current_info_surface = update_image_display(current_image_index)
                     processed_mask_surface = None # Clear ] mask
                 elif event.key == pg.K_LEFT:
                     current_image_index = (current_image_index - 1 + len(image_files)) % len(image_files)
-                    current_image_surface, current_info_surface = update_image_display(current_image_index)
+                    current_image_bgr, current_display_surface, current_info_surface = update_image_display(current_image_index)
                     processed_mask_surface = None # Clear  mask
 
             # Pass the event to each input box and button
