@@ -56,12 +56,17 @@ class InputBox:
 
 class Button:
     """A clickable button."""
-    def __init__(self, x, y, w, h, text='Click', callback=None):
+    def __init__(self, x, y, w, h, text='Click', callback=None, color_inactive=None, color_active=None):
         self.rect = pg.Rect(x, y, w, h)
-        self.color = COLOR_INACTIVE
+        self.color_inactive = color_inactive or COLOR_INACTIVE
+        self.color_active = color_active or COLOR_ACTIVE
+        self.color = self.color_inactive
+        
+        # Added colour changing and text capabilities
         self.text = text
-        self.txt_surface = FONT.render(text, True, (255, 255, 255))
-        self.callback = callback # Function to call when clicked
+        self.font = FONT # Store font for text updates
+        self.txt_surface = self.font.render(text, True, (255, 255, 255))
+        self.callback = callback
         self.clicked = False
 
     def handle_event(self, event):
@@ -69,18 +74,22 @@ class Button:
         if event.type == pg.MOUSEBUTTONDOWN:
             if self.rect.collidepoint(event.pos):
                 self.clicked = True
-                self.color = COLOR_ACTIVE
+                self.color = self.color_active
         if event.type == pg.MOUSEBUTTONUP:
             if self.clicked and self.rect.collidepoint(event.pos):
                 if self.callback:
                     self.callback() # Execute the callback function
             self.clicked = False
-            self.color = COLOR_INACTIVE
-
+            self.color = self.color_inactive
+    
+    # New functions for customisation
+    def update_text(self, new_text):
+        """Updates the button's text and re-renders its surface."""
+        self.text = new_text
+        self.txt_surface = self.font.render(self.text, True, (255, 255, 255))
 
     def draw(self, screen):
         """Draw the button on the screen."""
         pg.draw.rect(screen, self.color, self.rect)
-        # Center the text on the button
         text_rect = self.txt_surface.get_rect(center=self.rect.center)
         screen.blit(self.txt_surface, text_rect)
