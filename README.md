@@ -6,6 +6,19 @@ This project implements an automated image analysis pipeline in Python to identi
 
 This was developed as an enhancement of an original project for the EMS420 Module.
 
+## Key Features (v2.0)
+
+-   **Interactive GUI:** A full-featured graphical interface built with PyGame for a smooth user experience.
+-   **Live Parameter Tuning:** Interactively adjust parameters like Gaussian sigma, block size, and threshold factor and see the results instantly.
+-   **Advanced Visualization:** Utilizes a **Viridis colormap** to assign a unique color to each detected grain, offering superior clarity over a simple binary mask.
+-   **Invert and Toggle Controls:**
+    -   **Invert Mask:** Easily analyze images where grains are darker than their boundaries.
+    -   **Toggle Overlay:** Hide and show the segmentation mask with a single click to compare results against the original image.
+-   **Save Functionality:**
+    -   Save extracted grain properties (area, perimeter, solidity, etc.) to a `.csv` file.
+    -   Save a high-quality, side-by-side comparison image (`.png`) for reports and documentation.
+-   **Organized Output:** Automatically saves `.csv` and `.png` files into structured subdirectories based on the sample name (e.g., `output/data/X-6/`).
+
 ## Features Extracted
 
 For each detected grain, the script calculates and saves the following properties:
@@ -37,13 +50,14 @@ The project is structured into a modular and interactive workflow:
 2.  **Add images:** Place your sample images into the correct subdirectories (e.g., `images/raw/X-6/`) - Must be JPGs.
 3.  **Run the interactive processor:**
     ```bash
-    python interactive_processor.py
+    python gui_app.py
     ```
-4.  **Follow the prompts:**
-    * In your terminal, enter the desired processing parameters for each image. Pressing `Enter` will accept the default value.
-    * A window will pop up showing the generated mask. Review it and **press any key** to close it.
-    * A new tab will open in your web browser with an interactive plot.
-    * Return to your terminal and type `y` to approve and save the result, or `n` to reject and try again.
+4.  **Using the GUI:**
+    -   Use the **left and right arrow keys** to cycle through images.
+    -   Adjust the processing parameters using the input boxes in the control panel.
+    -   Use the toggle buttons to **Invert** or **Hide/Show** the mask.
+    -   Click **"Process Image"** to see the segmentation results with the new parameters.
+    -   Once satisfied, click **"Approve & Save"** to generate the output `.csv` and `.png` files.
 5.  **Find your results:**
     * **Data:** `.csv` files will be in `/data/<sample_type>/`.
     * **Final Plots:** `.png` and `.html` files will be in `/output/`.
@@ -57,11 +71,32 @@ Here is an example of the pipeline's output, showing the original image and the 
 
 ![Example Comparison](output/comparison_images/X-6/X-6_1_comparison.png)`
 
+## Project History & Evolution
+
+<details>
+<summary><strong>v1.0: Original Command-Line Interface</strong> (Click to expand)</summary>
+
+### Methodology & Workflow (v1.0)
+The original version of this project operated as a command-line script (`interactive_processor.py`) - Found in the deprecated section- . It processed images sequentially and relied on terminal prompts and static Plotly windows for user interaction.
+
+1.  **Modular Functions (`src/utils.py`):** The core image processing logic (Gaussian blur, adaptive thresholding, morphological operations, and feature extraction using scikit-image) was contained in a helper script.
+2.  **Interactive Processor (`interactive_processor.py`):** This script looped through each image and prompted the user for processing parameters via the command line. It provided visual feedback by generating a mask image and an interactive Plotly plot for user approval before saving. This "user-in-the-loop" approach ensured high accuracy but required more manual steps.
+3.  **Data Analysis (`Analysis.ipynb`):** A final Jupyter Notebook loaded all the approved, extracted data from the generated `.csv` files. It performed a comparative statistical analysis (ANOVA and post-hoc tests) and created visualizations to compare the sample types.
+
+### How to Use (v1.0)
+The following command initiated the original command-line-based processing workflow:
+```bash
+python interactive_processor.py
+```
+
+</details>
+
 ## Technologies Used
-- Python
-- OpenCV
-- Scikit-image
-- Plotly
-- Matplotlib
-- Pandas
-- Numpy
+* Python
+* PyGame: For the v2.0 graphical user interface.
+* OpenCV: For core image loading and manipulation.
+* scikit-image: For image filtering, segmentation, and feature extraction algorithms.
+* NumPy: For numerical operations and array handling.
+* Pandas: For data manipulation and saving .csv files.
+* Matplotlib: For generating and saving the comparison plots.
+* Plotly: Used in v1.0 for interactive visualizations.
